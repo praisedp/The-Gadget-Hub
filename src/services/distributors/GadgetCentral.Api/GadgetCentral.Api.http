@@ -1,0 +1,6 @@
+@GadgetCentral.Api_HostAddress = http://localhost:5022
+
+GET {{GadgetCentral.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

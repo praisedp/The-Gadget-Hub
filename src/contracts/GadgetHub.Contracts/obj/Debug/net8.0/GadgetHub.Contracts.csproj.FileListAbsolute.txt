@@ -1,0 +1,11 @@
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\bin\Debug\net8.0\GadgetHub.Contracts.deps.json
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\bin\Debug\net8.0\GadgetHub.Contracts.dll
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\bin\Debug\net8.0\GadgetHub.Contracts.pdb
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\GadgetHub.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\GadgetHub.Contracts.AssemblyInfoInputs.cache
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\GadgetHub.Contracts.AssemblyInfo.cs
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\GadgetHub.Contracts.csproj.CoreCompileInputs.cache
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\GadgetHub.Contracts.dll
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\refint\GadgetHub.Contracts.dll
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\GadgetHub.Contracts.pdb
+D:\The Gadget Hub\src\contracts\GadgetHub.Contracts\obj\Debug\net8.0\ref\GadgetHub.Contracts.dll
