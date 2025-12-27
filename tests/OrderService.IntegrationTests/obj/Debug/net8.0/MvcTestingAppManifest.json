@@ -1,7 +1,0 @@
-{
-  "ElectroCom.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\The Gadget Hub\\src\\services\\distributors\\ElectroCom.Api",
-  "GadgetCentral.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\The Gadget Hub\\src\\services\\distributors\\GadgetCentral.Api",
-  "GadgetHub.Contracts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\The Gadget Hub\\src\\contracts\\GadgetHub.Contracts",
-  "OrderService, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\The Gadget Hub\\src\\services\\OrderService",
-  "TechWorld.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "D:\\The Gadget Hub\\src\\services\\distributors\\TechWorld.Api"
-}
