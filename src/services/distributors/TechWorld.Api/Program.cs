@@ -20,7 +20,23 @@ builder.Services.AddSingleton(new InventoryService("TechWorld", "TW", new List<I
     new("P1005", 150m, 6, 5),
     new("P1006", 780m, 4, 5),
     new("P1007", 330m, 7, 4),
-    new("P1008", 110m, 12, 2)
+    new("P1008", 110m, 12, 2),
+    new("P1009", 65m, 10, 2),
+    new("P1010", 180m, 5, 3),
+    new("P1011", 110m, 8, 3),
+    new("P1012", 120m, 6, 3),
+    new("P1013", 65m, 14, 2),
+    new("P1014", 140m, 6, 4),
+    new("P1015", 280m, 5, 4),
+    new("P1016", 220m, 4, 5),
+    new("P1017", 450m, 5, 3),
+    new("P1018", 48m, 20, 2),
+    new("P1019", 175m, 5, 3),
+    new("P1020", 160m, 7, 3),
+    new("P1021", 380m, 4, 4),
+    new("P1022", 65m, 12, 2),
+    new("P1023", 42m, 25, 2),
+    new("P1024", 210m, 6, 3)
 }));
 
 var app = builder.Build();
