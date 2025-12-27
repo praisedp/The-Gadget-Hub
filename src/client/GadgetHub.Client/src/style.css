@@ -981,6 +981,15 @@ button:disabled {
   gap: 10px;
 }
 
+.result-actions {
+  margin: 10px 0 18px;
+}
+
+.result-actions .btn {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
 .footer {
   display: flex;
   align-items: center;
