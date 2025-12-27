@@ -10,14 +10,19 @@ import { productCatalog } from './types'
 
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5005'
 const CART_KEY = 'gadget-hub-cart'
+const VIEW_KEY = 'gadget-hub-view'
 
 function App() {
-  const [view, setView] = useState<'home' | 'catalog' | 'cart'>('home')
+  const [view, setView] = useState<'home' | 'catalog' | 'cart'>(() => {
+    if (typeof window === 'undefined') return 'home'
+    const stored = window.sessionStorage.getItem(VIEW_KEY)
+    return stored === 'catalog' || stored === 'cart' || stored === 'home' ? stored : 'home'
+  })
   const [customerName, setCustomerName] = useState('Acme Corp')
   const [items, setItems] = useState<OrderItem[]>(() => {
     if (typeof window === 'undefined') return [{ productId: 'P1001', quantity: 1 }]
     try {
-      const raw = window.localStorage.getItem(CART_KEY)
+      const raw = window.sessionStorage.getItem(CART_KEY)
       if (!raw) return [{ productId: 'P1001', quantity: 1 }]
       const parsed = JSON.parse(raw) as OrderItem[]
       if (
@@ -44,8 +49,13 @@ function App() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    window.localStorage.setItem(CART_KEY, JSON.stringify(items))
+    window.sessionStorage.setItem(CART_KEY, JSON.stringify(items))
   }, [items])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.sessionStorage.setItem(VIEW_KEY, view)
+  }, [view])
 
   const addProductToCart = (productId: string) => {
     setItems((prev) => {
