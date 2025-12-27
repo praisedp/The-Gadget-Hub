@@ -17,7 +17,10 @@ builder.Services.AddSingleton(new InventoryService("ElectroCom", "EC", new List<
     new("P1002", 85m, 10, 5),
     new("P1003", 80m, 4, 3),
     new("P1004", 190m, 6, 7),
-    new("P1005", 160m, 5, 4)
+    new("P1005", 160m, 5, 4),
+    new("P1006", 760m, 5, 6),
+    new("P1007", 345m, 5, 5),
+    new("P1008", 115m, 10, 3)
 }));
 
 var app = builder.Build();

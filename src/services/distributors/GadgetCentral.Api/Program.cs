@@ -17,7 +17,10 @@ builder.Services.AddSingleton(new InventoryService("GadgetCentral", "GC", new Li
     new("P1002", 95m, 7, 3),
     new("P1003", 78m, 9, 4),
     new("P1004", 195m, 5, 5),
-    new("P1005", 155m, 7, 6)
+    new("P1005", 155m, 7, 6),
+    new("P1006", 810m, 3, 5),
+    new("P1007", 320m, 6, 4),
+    new("P1008", 118m, 9, 3)
 }));
 
 var app = builder.Build();

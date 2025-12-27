@@ -1,59 +1,61 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import Catalog from './components/Catalog'
+import Hero from './components/Hero'
+import HowItWorks from './components/HowItWorks'
+import NavBar from './components/NavBar'
+import OrderForm from './components/OrderForm'
+import SummaryCard from './components/SummaryCard'
+import type { OrderItem, OrderSuccessResponse, Shortfall } from './types'
+import { productCatalog } from './types'
 
-type OrderItem = {
-  productId: string
-  quantity: number
-}
-
-type Allocation = {
-  productId: string
-  distributor: string
-  quantity: number
-  unitPrice: number
-  deliveryDays: number
-}
-
-type DistributorOrder = {
-  distributor: string
-  distributorOrderId: string
-  deliveryDays: number
-}
-
-type Shortfall = {
-  productId: string
-  requested: number
-  availableTotal: number
-  missing: number
-}
-
-type OrderSuccessResponse = {
-  orderId: string
-  status: string
-  finalEstimatedDeliveryDays: number
-  allocations: Allocation[]
-  distributorOrders: DistributorOrder[]
-}
-
-const productCatalog = [
-  { id: 'P1001', name: 'Smart Watch' },
-  { id: 'P1002', name: 'Noise Cancelling Headphones' },
-  { id: 'P1003', name: 'Bluetooth Speaker' },
-  { id: 'P1004', name: 'Drone Camera' },
-  { id: 'P1005', name: 'E-Reader' },
-]
-
-const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000'
+const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5005'
+const CART_KEY = 'gadget-hub-cart'
 
 function App() {
+  const [view, setView] = useState<'home' | 'catalog' | 'cart'>('home')
   const [customerName, setCustomerName] = useState('Acme Corp')
-  const [items, setItems] = useState<OrderItem[]>([{ productId: 'P1001', quantity: 1 }])
+  const [items, setItems] = useState<OrderItem[]>(() => {
+    if (typeof window === 'undefined') return [{ productId: 'P1001', quantity: 1 }]
+    try {
+      const raw = window.localStorage.getItem(CART_KEY)
+      if (!raw) return [{ productId: 'P1001', quantity: 1 }]
+      const parsed = JSON.parse(raw) as OrderItem[]
+      if (
+        Array.isArray(parsed) &&
+        parsed.every((p) => typeof p.productId === 'string' && typeof p.quantity === 'number')
+      ) {
+        const filtered = parsed
+          .map((p) => ({ ...p, quantity: Math.max(p.quantity, 1) }))
+          .filter((p) => productCatalog.some((c) => c.id === p.productId))
+        if (filtered.length > 0) return filtered
+      }
+    } catch (err) {
+      console.error('Failed to read cart', err)
+    }
+    return [{ productId: 'P1001', quantity: 1 }]
+  })
   const [loading, setLoading] = useState(false)
   const [response, setResponse] = useState<OrderSuccessResponse | null>(null)
   const [shortfalls, setShortfalls] = useState<Shortfall[]>([])
   const [error, setError] = useState<string | null>(null)
   const [correlationId, setCorrelationId] = useState<string | null>(null)
 
-  const addItem = () => setItems((prev) => [...prev, { productId: 'P1002', quantity: 1 }])
+  const cartCount = useMemo(() => items.reduce((sum, i) => sum + i.quantity, 0), [items])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(CART_KEY, JSON.stringify(items))
+  }, [items])
+
+  const addProductToCart = (productId: string) => {
+    setItems((prev) => {
+      const existingIndex = prev.findIndex((p) => p.productId === productId)
+      if (existingIndex >= 0) {
+        return prev.map((p, idx) => (idx === existingIndex ? { ...p, quantity: p.quantity + 1 } : p))
+      }
+      return [...prev, { productId, quantity: 1 }]
+    })
+  }
 
   const removeItem = (index: number) =>
     setItems((prev) => prev.filter((_, idx) => idx !== index))
@@ -64,7 +66,7 @@ function App() {
         idx === index
           ? {
               ...item,
-              [field]: field === 'quantity' ? Number(value) || 0 : value,
+              [field]: field === 'quantity' ? Math.max(Number(value) || 0, 1) : value,
             }
           : item,
       ),
@@ -77,9 +79,23 @@ function App() {
     setShortfalls([])
     setResponse(null)
 
+    const filteredItems = items.filter(
+      (i) => i.productId && i.quantity > 0 && productCatalog.some((p) => p.id === i.productId),
+    )
+    if (!customerName.trim()) {
+      setError('Please enter a customer name.')
+      setLoading(false)
+      return
+    }
+    if (filteredItems.length === 0) {
+      setError('Add at least one item with a quantity.')
+      setLoading(false)
+      return
+    }
+
     const payload = {
       customerName,
-      items: items.filter((i) => i.productId && i.quantity > 0),
+      items: filteredItems,
     }
 
     const corr = crypto.randomUUID()
@@ -121,128 +137,77 @@ function App() {
 
   return (
     <div className="page">
-      <header>
-        <h1>The Gadget Hub</h1>
-        <p>Place an order and we will route it to the best distributor mix.</p>
-      </header>
+      <NavBar
+        onHomeClick={() => setView('home')}
+        onCatalogClick={() => setView('catalog')}
+        onCartClick={() => setView('cart')}
+        cartCount={cartCount}
+      />
 
-      <section className="card">
-        <div className="field">
-          <label>Customer name</label>
-          <input
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            placeholder="Customer name"
-          />
-        </div>
-
-        <div className="items-header">
-          <h2>Items</h2>
-          <button className="ghost" onClick={addItem} type="button">
-            + Add item
-          </button>
-        </div>
-
-        <div className="items-grid">
-          {items.map((item, index) => (
-            <div className="item-row" key={index}>
-              <select
-                value={item.productId}
-                onChange={(e) => updateItem(index, 'productId', e.target.value)}
-              >
-                {productCatalog.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.id} — {p.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="number"
-                min={1}
-                value={item.quantity}
-                onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-              />
-              <button
-                className="ghost"
-                type="button"
-                onClick={() => removeItem(index)}
-                disabled={items.length === 1}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <button className="primary" onClick={submitOrder} disabled={loading}>
-          {loading ? 'Placing order...' : 'Place order'}
-        </button>
-      </section>
-
-      {correlationId && (
-        <div className="info">Correlation ID: {correlationId}</div>
+      {view === 'home' && (
+        <>
+          <Hero onCatalogClick={() => setView('catalog')} onCartClick={() => setView('cart')} />
+          <HowItWorks />
+        </>
       )}
 
-      {error && (
-        <div className="error">
-          <strong>Request failed:</strong> {error}
-          {shortfalls.length > 0 && (
-            <ul>
-              {shortfalls.map((s) => (
-                <li key={s.productId}>
-                  {s.productId}: requested {s.requested}, available {s.availableTotal}, missing{' '}
-                  {s.missing}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      {response && (
-        <section className="card result">
-          <h2>Order {response.orderId}</h2>
-          <p className="status success">{response.status}</p>
-          <p>Final ETA: {response.finalEstimatedDeliveryDays} days</p>
-          <p>Total cost: ${totalCost.toFixed(2)}</p>
-
-          <div className="table">
-            <div className="table-title">Allocations</div>
-            <div className="table-header">
-              <span>Product</span>
-              <span>Distributor</span>
-              <span>Qty</span>
-              <span>Unit Price</span>
-              <span>Delivery</span>
-            </div>
-            {response.allocations.map((a, idx) => (
-              <div className="table-row" key={idx}>
-                <span>{a.productId}</span>
-                <span>{a.distributor}</span>
-                <span>{a.quantity}</span>
-                <span>${a.unitPrice.toFixed(2)}</span>
-                <span>{a.deliveryDays} days</span>
-              </div>
-            ))}
+      {view === 'catalog' && (
+        <>
+          <Catalog products={productCatalog} onAddToCart={addProductToCart} />
+          <div className="section">
+            <button className="btn primary" onClick={() => setView('cart')}>
+              View cart & place order
+            </button>
           </div>
+        </>
+      )}
 
-          <div className="table">
-            <div className="table-title">Distributor Orders</div>
-            <div className="table-header">
-              <span>Distributor</span>
-              <span>Order Id</span>
-              <span>Delivery</span>
+      {view === 'cart' && (
+        <section className="section order">
+          <div className="section-header">
+            <div>
+              <p className="eyebrow">Cart</p>
+              <h2>Review cart and place order</h2>
+              <p className="lede small">We will return allocations, distributor order IDs, and the final ETA.</p>
             </div>
-            {response.distributorOrders.map((o, idx) => (
-              <div className="table-row" key={idx}>
-                <span>{o.distributor}</span>
-                <span>{o.distributorOrderId}</span>
-                <span>{o.deliveryDays} days</span>
-              </div>
-            ))}
+          </div>
+          <div className="order-grid">
+            <OrderForm
+              customerName={customerName}
+              items={items}
+              products={productCatalog}
+              loading={loading}
+              correlationId={correlationId}
+              error={error}
+              shortfalls={shortfalls}
+              onCustomerNameChange={setCustomerName}
+              onRemoveItem={removeItem}
+              onUpdateItem={updateItem}
+              onSubmit={submitOrder}
+            />
+
+            <SummaryCard items={items} products={productCatalog} response={response} totalCost={totalCost} />
           </div>
         </section>
       )}
+
+      <footer className="footer">
+        <div>
+          <strong>The Gadget Hub</strong>
+          <p className="tagline">Sourcing the best mix from TechWorld, ElectroCom, and Gadget Central.</p>
+        </div>
+        <div className="footer-links">
+          <button className="btn link" onClick={() => setView('home')} aria-label="Home">
+            Home
+          </button>
+          <button className="btn link" onClick={() => setView('catalog')} aria-label="Catalog">
+            Catalog
+          </button>
+          <button className="btn link" onClick={() => setView('cart')} aria-label="Cart">
+            Cart
+          </button>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -17,7 +17,10 @@ builder.Services.AddSingleton(new InventoryService("TechWorld", "TW", new List<I
     new("P1002", 90m, 5, 4),
     new("P1003", 75m, 8, 2),
     new("P1004", 200m, 3, 6),
-    new("P1005", 150m, 6, 5)
+    new("P1005", 150m, 6, 5),
+    new("P1006", 780m, 4, 5),
+    new("P1007", 330m, 7, 4),
+    new("P1008", 110m, 12, 2)
 }));
 
 var app = builder.Build();
